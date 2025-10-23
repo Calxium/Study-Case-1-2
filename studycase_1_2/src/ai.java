@@ -12,7 +12,7 @@ public class ai {
 
         while (true) {
             String line = input.nextLine();
-            if (line.equalsIgnoreCase("exit")) {
+            if (line.equalsIgnoreCase("")) {
                 break;
             }
             // Pisahkan input berdasarkan spasi
@@ -49,11 +49,19 @@ public class ai {
                 command[countCommand][0] = bagian[0];
                 command[countCommand][1] = bagian[1];
                 countCommand++;
+            }  else if (perintah.equals("CALCULATE_DISTANCE") && bagian.length == 2) {
+                command[countCommand][0] = bagian[0];
+                command[countCommand][1] = bagian[1];
+                countCommand++;
+            }  else if (perintah.equals("CALCULATE_COST") && bagian.length == 2) {
+                command[countCommand][0] = bagian[0];
+                command[countCommand][1] = bagian[1];
+                countCommand++;
             }
         }
-
-        // Output hasil UPSERT_CUST
+        // Olah proses perintah UPSERT_CUST
         for (int i = 0; i < countCommand; i++) {
+            // Olah proses perintah UPSERT_CUST
             if (command[i][0].equals("UPSERT_CUST")) {
                 boolean sama_= false;
                 for(int sama = 0; sama < countCustomer; sama++){
@@ -74,12 +82,13 @@ public class ai {
                     countCustomer++;
                     System.out.println("CUSTOMER: " + command[i][1] + " DITAMBAH @ " + command[i][2] + ", " + command[i][3]);
                 }
+            // Olah proses perintah UPSERT_DRIVER
             } else if (command[i][0].equals("UPSERT_DRIVER")) {
                 boolean sama_= false;
-                for(int sama = 0; sama < countDriver; sama++){
-                    if(dataDriver[sama][0] != null && command[i][1].equalsIgnoreCase(dataDriver[sama][0])){
-                        dataDriver[sama][1] = command[i][2];
-                        dataDriver[sama][2] = command[i][3];
+                for(int j = 0; j < countDriver; j++){
+                    if(dataDriver[j][0] != null && command[i][1].equalsIgnoreCase(dataDriver[j][0])){
+                        dataDriver[j][1] = command[i][2];
+                        dataDriver[j][2] = command[i][3];
                         System.out.println("DRIVER: " + command[i][1] + " SUDAH ADA, LOKASI BARU @  " + command[i][2] + ", " + command[i][3]);
                         sama_ = true;
                         break;
@@ -94,7 +103,8 @@ public class ai {
                     countDriver++;
                     System.out.println("DRIVER: " + command[i][1] + " DITAMBAH @ " + command[i][2] + ", " + command[i][3]);
                 }
-            }else if (command[i][0].equals("DEL_CUST")){
+            // Olah proses perintah DEL_CUST
+            } else if (command[i][0].equals("DEL_CUST")){
                 boolean print = true;
                 for(int j = 0; j < countCustomer ; j++){
                     if(command[i][1].equals(dataCustomer[j][0]) && dataCustomer[j][0] != null){
@@ -110,6 +120,7 @@ public class ai {
                     }else{
                         System.out.println("CUSTOMER: " + command[i][1] + " TIDAK DITEMUKAN");
                     }
+            // Olah proses perintah DEL_DRIVER
             } else if (command[i][0].equals("DEL_DRIVER")) {
                 boolean print = true;
                 for(int j = 0; j < countDriver ; j++){
@@ -128,6 +139,7 @@ public class ai {
                     }else{
                         System.out.println("DRIVER: " + command[i][1] + " TIDAK DITEMUKAN");
                     }
+            // Olah proses perintah PRINT_CUST
             }  else if (command[i][0].equals("PRINT_CUST")) {
                 for(int a = 0; a<countCustomer-1; a++){
                     for(int b =  a + 1; b<countCustomer; b++){
@@ -153,6 +165,7 @@ public class ai {
                     if (dataCustomer[print][0] != null)
                     System.out.println(dataCustomer[print][0] + " @ " + dataCustomer[print][1] + ", " + dataCustomer[print][2]);
                 }
+            // Olah proses perintah PRINT_DRIVER
             }  else if (command[i][0].equals("PRINT_DRIVER")) {
                 for(int a = 0; a<countDriver-1; a++){
                     for(int b =  a + 1; b<countDriver; b++){
@@ -178,6 +191,73 @@ public class ai {
                         if (dataDriver[print][0] != null)
                             System.out.println(dataDriver[print][0] + " @ " + dataDriver[print][1] + ", " + dataDriver[print][2]);
                 }
+            }  else if (command[i][0].equals("CALCULATE_DISTANCE") || command[i][0].equals("CALCULATE_COST") ) {
+                double [] jarak = new double[countDriver];
+                double x_pembeli;
+                double y_pembeli;
+                double [] x_driver = new double[countDriver];
+                double [] y_driver = new double[countDriver];
+                double [] cost = new double[countDriver];
+                for(int j = 0; j < countCustomer ; j++){
+                    if(dataCustomer[j][0].equalsIgnoreCase(command[i][1]) && dataCustomer[j][0] != null){
+                        System.out.println("DISTANCE " + dataCustomer[j][0] + " @ " + dataCustomer[j][1] + ", " + dataCustomer[j][2]);
+                        for(int k = 0; k < countDriver; k++){
+                            x_pembeli = Double.parseDouble(dataCustomer[j][1]);
+                            y_pembeli = Double.parseDouble(dataCustomer[j][2]);
+                            x_driver[k] = Double.parseDouble(dataDriver[k][1]);
+                            y_driver[k] = Double.parseDouble(dataDriver[k][2]);
+                            jarak[k] = Math.sqrt(((x_pembeli-x_driver[k])*(x_pembeli-x_driver[k]))+((y_pembeli-y_driver[k])*(y_pembeli-y_driver[k]))) ;
+                        }
+                        for(int l = 0; l < countDriver-1; l++){
+                            for(int m = l+1; m<countDriver; m++){
+                                if(jarak[m]<jarak[l]){
+                                    //tukar jarak
+                                    double tempJarak = jarak[l];
+                                    jarak[l] = jarak[m];
+                                    jarak[m] = tempJarak;
+                                    // nama driver
+                                    String tempnamaDriver = dataDriver[l][0];
+                                    dataDriver[l][0] = dataDriver[m][0];
+                                    dataDriver[m][0] = tempnamaDriver;
+                                    // nama driver
+                                    String tempxDriver = dataDriver[l][1];
+                                    dataDriver[l][1] = dataDriver[m][1];
+                                    dataDriver[m][1] = tempxDriver;
+                                    // nama driver
+                                    String tempyDriver = dataDriver[l][2];
+                                    dataDriver[l][2] = dataDriver[m][2];
+                                    dataDriver[m][2] = tempyDriver;
+                                }
+                            }
+                        }
+                        for(int z = 0; z < countDriver; z++){
+                                jarak[z] = Math.ceil(jarak[z]);
+                            }
+                        if(command[i][0].equals("CALCULATE_DISTANCE")){
+                            for(int z = 0; z < countDriver; z++){
+                                jarak[z] = Math.ceil(jarak[z]);
+                                System.out.println(dataDriver[z][0] + "_" + (z+1) + " @ " + dataDriver[z][1] + ", " + dataDriver[z][2] + " = " + jarak[z]);
+                            }
+                        }else if (command[i][0].equals("CALCULATE_COST")){
+                            for(int z = 0; z < countDriver; z++){
+                                if(jarak[z]>10){
+                                    cost[z] = 27500 + (jarak[z]*3000);
+                                }else if(jarak[z]>5){
+                                    cost[z] = 15000 + (jarak[z]*2500);
+                                }else if(jarak[z]>1){
+                                    cost[z] = 7000 + (jarak[z]*2000);
+                                }else if(jarak[z]>0){
+                                    cost[z] = 7000;
+                                }
+                                cost[z] = Math.ceil(cost[z]);
+                            }
+                            for(int z = 0; z < countDriver; z++){
+                                System.out.println(dataDriver[z][0] + "_" + (z+1) + " @ " + dataDriver[z][1] + ", " + dataDriver[z][2] + " = " + cost[z]);
+                            }
+                        }
+                    }
+                }
+                
             }
         }
     }
