@@ -3,67 +3,143 @@ import java.util.Scanner;
 public class ai {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
-        String perintah;
-        int n = 0;
+        String[][] command = new String[999][4];
+        String[][] dataCustomer = new String[999][3];
+        String[][] dataDriver = new String[999][3];
+        int countCommand = 0;
+        int countCustomer = 0;
+        int countDriver = 0;
 
-        String[] pembeli = new String[0];
-        double[] x = new double[0];
-        double[] y = new double[0];
+        while (true) {
+            String line = input.nextLine();
+            if (line.equalsIgnoreCase("exit")) {
+                break;
+            }
+            // Pisahkan input berdasarkan spasi
+            String[] bagian = line.split(" ");
 
-        while (n != 1) {
-            System.out.print("Masukkan perintah: ");
-            perintah = input.nextLine().trim();
+            // Pastikan input tidak kosong
+            if (bagian.length == 0) continue;
+            
+            String perintah = bagian[0];
 
-            if (perintah.equals("UPSERT_CUST")) {
-                System.out.println("Masukkan data (format: Nama X Y): ");
-                String line = input.nextLine();
-                String[] parts = line.split("\\s+"); // pisahkan berdasarkan spasi
-
-                if (parts.length < 3) {
-                    System.out.println("Format salah! Harus: Nama X Y");
-                    continue;
-                }
-
-                String name = parts[0];
-                double x_ = Double.parseDouble(parts[1]);
-                double y_ = Double.parseDouble(parts[2]);
-
-                // tambah nama
-                String[] temp = new String[pembeli.length + 1];
-                for (int i = 0; i < pembeli.length; i++) {
-                    temp[i] = pembeli[i];
-                }
-                temp[temp.length - 1] = name;
-                pembeli = temp;
-
-                // tambah x
-                double[] tempx = new double[x.length + 1];
-                for (int i = 0; i < x.length; i++) {
-                    tempx[i] = x[i];
-                }
-                tempx[tempx.length - 1] = x_;
-                x = tempx;
-
-                // tambah y
-                double[] tempy = new double[y.length + 1];
-                for (int i = 0; i < y.length; i++) {
-                    tempy[i] = y[i];
-                }
-                tempy[tempy.length - 1] = y_;
-                y = tempy;
-
-            } else if (perintah.equals("PRINT_CUST")) {
-                n++;
-            } else if (perintah.equals("DEL_CUST")) {
-                // belum diisi
+            if (perintah.equals("UPSERT_CUST") && bagian.length == 4) {
+                command[countCommand][0] = bagian[0];
+                command[countCommand][1] = bagian[1];
+                command[countCommand][2] = bagian[2];
+                command[countCommand][3] = bagian[3];
+                countCommand++;
+            } else if (perintah.equals("UPSERT_DRIVER") && bagian.length == 4) {
+                command[countCommand][0] = bagian[0];
+                command[countCommand][1] = bagian[1];
+                command[countCommand][2] = bagian[2];
+                command[countCommand][3] = bagian[3];
+                countCommand++;
+            } else if (perintah.equals("PRINT_CUST") && bagian.length == 1) {
+                command[countCommand][0] = bagian[0];
+                countCommand++;
+            } else if (perintah.equals("DEL_CUST") && bagian.length == 2) {
+                command[countCommand][0] = bagian[0];
+                command[countCommand][1] = bagian[1];
+                countCommand++;
+            } else if (perintah.equals("DEL_DRIVER") && bagian.length == 2) {
+                command[countCommand][0] = bagian[0];
+                command[countCommand][1] = bagian[1];
+                countCommand++;
             }
         }
 
-        System.out.println("\nDaftar Pembeli:");
-        for (int i = 0; i < pembeli.length; i++) {
-            System.out.println(pembeli[i] + " " + x[i] + " " + y[i]);
-        }
+        // Output hasil UPSERT_CUST
+        for (int i = 0; i < countCommand; i++) {
+            if (command[i][0].equals("UPSERT_CUST")) {
+                boolean sama_= false;
+                for(int sama = 0; sama < countCustomer; sama++){
+                    if(dataCustomer[sama][0] != null && command[i][1].equalsIgnoreCase(dataCustomer[sama][0])){
+                        dataCustomer[sama][1] = command[i][2];
+                        dataCustomer[sama][2] = command[i][3];
+                        System.out.println("CUSTOMER: " + command[i][1] + " SUDAH ADA, LOKASI BARU @  " + command[i][2] + ", " + command[i][3]);
+                        sama_ = true;
+                        break;
+                    }else {
+                        sama_ = false;
+                    }
+                }
+                if(sama_ == false){
+                    dataCustomer[countCustomer][0] = command[i][1];
+                    dataCustomer[countCustomer][1] = command[i][2];
+                    dataCustomer[countCustomer][2] = command[i][3];
+                    countCustomer++;
+                    System.out.println("CUSTOMER: " + command[i][1] + " DITAMBAH @ " + command[i][2] + ", " + command[i][3]);
+                }
+                    
+                
+                
+            } else if (command[i][0].equals("UPSERT_DRIVER")) {
+                dataDriver[countDriver][0] = command[i][1];
+                dataDriver[countDriver][1] = command[i][2];
+                dataDriver[countDriver][2] = command[i][3];
+                countDriver++;
+                System.out.println("DRIVER: " + command[i][1] + " DITAMBAH @ " + command[i][2] + ", " + command[i][3]);
+            }else if (command[i][0].equals("DEL_CUST")){
+                boolean print = true;
+                for(int j = 0; j < countCustomer ; j++){
+                    if(command[i][1].equals(dataCustomer[j][0]) && dataCustomer[j][0] != null){
+                        dataCustomer[j][0] = null;
+                        print = true;
+                        break;
+                    }else if(!command[i][1].equals(dataCustomer[j][0])){
+                        print = false;
+                    }
+                }
+                    if(print == true){
+                        System.out.println("CUSTOMER: " + command[i][1] + " BERHASIL DIHAPUS");
+                    }else{
+                        System.out.println("CUSTOMER: " + command[i][1] + " TIDAK DITEMUKAN");
+                    }
+            } else if (command[i][0].equals("DEL_DRIVER")) {
+                boolean print = true;
+                for(int j = 0; j < countDriver ; j++){
+                    if(command[i][1].equals(dataDriver[j][0])){
+                        dataDriver[j][0] = null;
+                        print = true;
+                        break;
+                    }else if(!command[i][1].equals(dataDriver[j][0])){
+                        print = false;
+                    }else{
 
-        input.close();
+                    }
+                }
+                    if(print == true){
+                        System.out.println("DRIVER: " + command[i][1] + " BERHASIL DIHAPUS");
+                    }else{
+                        System.out.println("DRIVER: " + command[i][1] + " TIDAK DITEMUKAN");
+                    }
+            }  else if (command[i][0].equals("PRINT_CUST")) {
+                for(int a = 0; a<countCustomer-1; a++){
+                    for(int b =  a + 1; b<countCustomer; b++){
+                        if (dataCustomer[a][0] != null && dataCustomer[b][0] != null) {
+                            if(dataCustomer[a][0].compareToIgnoreCase(dataCustomer[b][0])> 0){
+                                // tukar nama
+                                String tempCustomer = dataCustomer[a][0];
+                                dataCustomer[a][0] = dataCustomer [b][0];
+                                dataCustomer[b][0] = tempCustomer;
+                                // tukar x
+                                String tempX = dataCustomer[a][1];
+                                dataCustomer[a][1] = dataCustomer [b][1];
+                                dataCustomer[b][1] = tempX;
+                                // tukar y
+                                String tempY = dataCustomer[a][2];
+                                dataCustomer[a][2] = dataCustomer [b][2];
+                                dataCustomer[b][2] = tempY;
+                            }
+                        }
+                    }
+                }
+                for(int print = 0; print<countCustomer; print++){
+                    if (dataCustomer[print][0] != null)
+                    System.out.println(dataCustomer[print][0] + " @ " + dataCustomer[print][1] + ", " + dataCustomer[print][2]);
+                }
+            }
+        }
     }
 }
