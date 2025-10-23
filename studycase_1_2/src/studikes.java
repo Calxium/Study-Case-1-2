@@ -1,50 +1,24 @@
-import java.util.Scanner;
-
-public class studikes {
-    public static void main(String[] args) {
-        Scanner input = new Scanner(System.in);
-        String[] pembeli = new String[999];
-        double[] x = new double[999];
-        double[] y = new double[999];
-        int j = 0;
-
-        while (true) {
-            String line = input.nextLine();
-            String[] bagian = line.split(" ");
-
-            if (bagian[0].equals("UPSERT_CUST")) {
-                // format: UPSERT_CUST NAMA X Y
-                pembeli[j] = bagian[1];
-                x[j] = Double.parseDouble(bagian[2]);
-                y[j] = Double.parseDouble(bagian[3]);
-                System.out.println("CUSTOMER: " + pembeli[j] + "  " + x[j] + ", " + y[j]);
-                j++;
-            } else if (bagian[0].equals("PRINT_CUST")) {
-                for(int i = 0; i<j-1; i++){
-                    for(int k = i + 1; k<j; k++){
-                        if (pembeli[i].compareToIgnoreCase(pembeli[k])> 0){
-                            String tempPembeli = pembeli[i];
-                            pembeli[i] = pembeli[k];
-                            pembeli[k] = tempPembeli;
-                            // Tukar x
-                            double tempX = x[i];
-                            x[i] = x[k];
-                            x[k] = tempX;
-                            // Tukar y
-                            double tempY = y[i];
-                            y[i] = y[k];
-                            y[k] = tempY;
+for(int a = 0; a<countDriver-1; a++){
+                    for(int b =  a + 1; b<countDriver; b++){
+                        if (dataDriver[a][0] != null && dataDriver[b][0] != null) {
+                            if(dataDriver[a][0].compareToIgnoreCase(dataDriver[b][0])> 0){
+                                // tukar nama
+                                String tempDriver = dataDriver[a][0];
+                                dataDriver[a][0] = dataDriver [b][0];
+                                dataDriver[b][0] = tempDriver;
+                                // tukar x
+                                String tempX = dataDriver[a][1];
+                                dataDriver[a][1] = dataDriver [b][1];
+                                dataDriver[b][1] = tempX;
+                                // tukar y
+                                String tempY = dataDriver[a][2];
+                                dataDriver[a][2] = dataDriver [b][2];
+                                dataDriver[b][2] = tempY;
                             }
-                
                         }
                     }
-                for (int i = 0; i < j; i++){
-                    System.out.println(pembeli[i] + " @ " + x[i] + ", " + y[i]);
                 }
-            } else if (bagian[0].equals("DEL_CUST")) {
-                break;
-            }
-        }
-
-    }
-}
+                    for(int print = 0; print<countDriver; print++){
+                    if (dataDriver[print][0] != null)
+                    System.out.println(dataDriver[print][0] + " @ " + dataDriver[print][1] + ", " + dataDriver[print][2]);
+                }
