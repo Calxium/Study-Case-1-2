@@ -57,6 +57,9 @@ public class ai {
                 command[countCommand][0] = bagian[0];
                 command[countCommand][1] = bagian[1];
                 countCommand++;
+            }  else if (perintah.equals("PRINT_DISTANCE_MATRIX") && bagian.length == 1) {
+                command[countCommand][0] = bagian[0];
+                countCommand++;
             }
         }
         // Olah proses perintah UPSERT_CUST
@@ -124,14 +127,12 @@ public class ai {
             } else if (command[i][0].equals("DEL_DRIVER")) {
                 boolean print = true;
                 for(int j = 0; j < countDriver ; j++){
-                    if(command[i][1].equals(dataDriver[j][0])){
+                    if(command[i][1].equals(dataDriver[j][0]) && dataDriver[j][0] != null){
                         dataDriver[j][0] = null;
                         print = true;
                         break;
                     }else if(!command[i][1].equals(dataDriver[j][0])){
                         print = false;
-                    }else{
-
                     }
                 }
                     if(print == true){
@@ -199,15 +200,20 @@ public class ai {
                 double [] y_driver = new double[countDriver];
                 double [] cost = new double[countDriver];
                 for(int j = 0; j < countCustomer ; j++){
-                    if(dataCustomer[j][0].equalsIgnoreCase(command[i][1]) && dataCustomer[j][0] != null){
+                    if(dataCustomer[j][0] != null && dataCustomer[j][0].equalsIgnoreCase(command[i][1])){
                         System.out.println("DISTANCE " + dataCustomer[j][0] + " @ " + dataCustomer[j][1] + ", " + dataCustomer[j][2]);
-                        for(int k = 0; k < countDriver; k++){
-                            x_pembeli = Double.parseDouble(dataCustomer[j][1]);
-                            y_pembeli = Double.parseDouble(dataCustomer[j][2]);
-                            x_driver[k] = Double.parseDouble(dataDriver[k][1]);
-                            y_driver[k] = Double.parseDouble(dataDriver[k][2]);
-                            jarak[k] = Math.sqrt(((x_pembeli-x_driver[k])*(x_pembeli-x_driver[k]))+((y_pembeli-y_driver[k])*(y_pembeli-y_driver[k]))) ;
+                        for (int k = 0; k < countDriver; k++) {
+                            if (dataDriver[k][0] != null) { // pastikan data valid
+                                x_pembeli = Double.parseDouble(dataCustomer[j][1]);
+                                y_pembeli = Double.parseDouble(dataCustomer[j][2]);
+                                x_driver[k] = Double.parseDouble(dataDriver[k][1]);
+                                y_driver[k] = Double.parseDouble(dataDriver[k][2]);
+                                jarak[k] = Math.sqrt(((x_pembeli - x_driver[k]) * (x_pembeli - x_driver[k])) +((y_pembeli - y_driver[k]) * (y_pembeli - y_driver[k])));
+                            } else {
+                                jarak[k] = Double.MAX_VALUE; // tandai driver yang sudah dihapus
+                            }
                         }
+
                         for(int l = 0; l < countDriver-1; l++){
                             for(int m = l+1; m<countDriver; m++){
                                 if(jarak[m]<jarak[l]){
@@ -234,31 +240,55 @@ public class ai {
                                 jarak[z] = Math.ceil(jarak[z]);
                             }
                         if(command[i][0].equals("CALCULATE_DISTANCE")){
-                            for(int z = 0; z < countDriver; z++){
-                                jarak[z] = Math.ceil(jarak[z]);
-                                System.out.println(dataDriver[z][0] + "_" + (z+1) + " @ " + dataDriver[z][1] + ", " + dataDriver[z][2] + " = " + jarak[z]);
+                        for(int a = 0; a < countDriver; a++){
+                            if(dataDriver[a][0] != null && jarak[a] != Double.MAX_VALUE){
+                                System.out.println(dataDriver[a][0] + "_" + (a+1) +" @ " + dataDriver[a][1] + ", " + dataDriver[a][2] + " = " + Math.ceil(jarak[a]));
+                                }
                             }
                         }else if (command[i][0].equals("CALCULATE_COST")){
                             for(int z = 0; z < countDriver; z++){
+                                if(dataDriver[z][0] != null && jarak[z] != Double.MAX_VALUE){
                                 if(jarak[z]>10){
-                                    cost[z] = 27500 + (jarak[z]*3000);
+                                    cost[z] = 7000 + ((jarak[z]-1)*3000);
                                 }else if(jarak[z]>5){
-                                    cost[z] = 15000 + (jarak[z]*2500);
+                                    cost[z] = 7000 + ((jarak[z]-1)*2500);
                                 }else if(jarak[z]>1){
-                                    cost[z] = 7000 + (jarak[z]*2000);
+                                    cost[z] = 7000 + ((jarak[z]-1)*2000);
                                 }else if(jarak[z]>0){
                                     cost[z] = 7000;
                                 }
                                 cost[z] = Math.ceil(cost[z]);
                             }
+                                
+                            }
                             for(int z = 0; z < countDriver; z++){
-                                System.out.println(dataDriver[z][0] + "_" + (z+1) + " @ " + dataDriver[z][1] + ", " + dataDriver[z][2] + " = " + cost[z]);
+                                if(dataDriver[z][0] != null && jarak[z] != Double.MAX_VALUE){
+                                    System.out.println(dataDriver[z][0] + "_" + " @ " + dataDriver[z][1] + ", " + dataDriver[z][2] + " = " + cost[z]);
+                                }
+                            }
+                        }
+                    }
+                }     
+            }else if (command[i][0].equals("PRINT_DISTANCE_MATRIX")){
+                for (int j = 0; j < dataCustomer.length; j++){
+                    if (dataCustomer[j][0] != null){
+                        for (int k = 0; k < dataDriver.length; k++){
+                            if (dataDriver[k][0] != null){
+                                String customer = dataCustomer[j][0];
+                                String driver = dataDriver[k][0];
+                                double xCustomer = Double.parseDouble(dataCustomer[j][1]);
+                                double yCustomer = Double.parseDouble(dataCustomer[j][2]);
+                                double xDriver = Double.parseDouble(dataDriver[k][1]);
+                                double yDriver = Double.parseDouble(dataDriver[k][2]);
+                                double jarak = Math.sqrt(Math.pow(xCustomer - xDriver, 2) + Math.pow(yCustomer - yDriver, 2));
+                                String hasil = String.format("%.2f", jarak);
+                                System.out.printf("[%s][%s][%s]\n", customer, driver, hasil);
                             }
                         }
                     }
                 }
-                
             }
         }
+        input.close();
     }
 }
